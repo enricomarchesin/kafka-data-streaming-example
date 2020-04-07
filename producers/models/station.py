@@ -1,4 +1,5 @@
 """Methods pertaining to loading and configuring CTA "L" station data."""
+import json
 import logging
 from pathlib import Path
 
@@ -53,12 +54,14 @@ class Station(Producer):
             "prev_station_id": prev_station_id,
             "prev_direction": prev_direction,
         }
-        logger.debug("%s", value)
-        # self.producer.produce(
-        #     topic=self.topic_name,
-        #     key={"timestamp": self.time_millis()},
-        #     value=value,
-        # )
+        logger.info("%s", json.dumps(value))
+        self.producer.produce(
+            topic=self.topic_name,
+            key={"timestamp": self.time_millis()},
+            key_schema=self.key_schema,
+            value=value,
+            value_schema=self.value_schema,
+        )
 
     def __str__(self):
         return "Station | {:^5} | {:<30} | Direction A: | {:^5} | departing to {:<30} | Direction B: | {:^5} | departing to {:<30} | ".format(

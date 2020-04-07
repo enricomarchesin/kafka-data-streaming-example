@@ -1,3 +1,9 @@
 {
-  "TODO": "Complete this Schema! (Make sure to delete this Key/Value Pair!"
+  "namespace": "org.chicago.cta",
+  "type": "record",
+  "name": "weather.value",
+  "fields": [
+    { "name": "temp", "type": "float" },
+    { "name": "status", "type": { "name": "weather_status", "type": "enum", "symbols" : ["sunny", "partly_cloudy", "cloudy", "windy", "precipitation"] } }
+  ]
 }
