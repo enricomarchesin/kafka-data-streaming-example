@@ -23,14 +23,17 @@ KSQL_URL = "http://localhost:8088"
 
 KSQL_STATEMENT = """
 CREATE TABLE turnstile (
-    ???
+station_id INTEGER, 
+num_entries INTEGER
 ) WITH (
-    ???
+KAFKA_TOPIC='org.chicago.cta.turnstiles', 
+VALUE_FORMAT='AVRO', 
+KEY='station_id'
 );
 
-CREATE TABLE turnstile_summary
-WITH (???) AS
-    ???
+CREATE TABLE turnstile_summary 
+WITH (PARTITIONS=1) 
+AS SELECT station_id, SUM(num_entries) as count FROM turnstile GROUP BY station_id;
 """
 
 

@@ -26,7 +26,7 @@ class Turnstile(Producer):
         )
 
         super().__init__(
-            f"org.chicago.cta.turnstiles.{station_name}",
+            f"org.chicago.cta.turnstiles",
             key_schema=Turnstile.key_schema,
             value_schema=Turnstile.value_schema,
         )

@@ -46,7 +46,6 @@ out_topic = app.topic("org.chicago.cta.all_stations", value_type=TransformedStat
 @app.agent(topic)
 async def station_cleaner(stations):
     async for station in stations:
-        print(asdict(station))
         if station.red:
             line = 'red'
         elif station.blue:
@@ -54,7 +53,7 @@ async def station_cleaner(stations):
         elif station.green:
             line = 'green'
         else:
-            line = ''
+            line = None
 
         t_station = TransformedStation(
             station_id=station.station_id,
@@ -62,6 +61,7 @@ async def station_cleaner(stations):
             order=station.order,
             line=line,
         )
+        logger.debug("t_station: %s", t_station)
         await out_topic.send(value=t_station)
 
 
