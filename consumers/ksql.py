@@ -22,17 +22,11 @@ KSQL_URL = "http://localhost:8088"
 #       Make sure to set the value format to JSON
 
 KSQL_STATEMENT = """
-CREATE TABLE turnstile (
-station_id INTEGER, 
-num_entries INTEGER
-) WITH (
-KAFKA_TOPIC='org.chicago.cta.turnstiles', 
-VALUE_FORMAT='AVRO', 
-KEY='station_id'
-);
+CREATE TABLE turnstile (station_id INTEGER, num_entries INTEGER) 
+WITH (KAFKA_TOPIC='org.chicago.cta.turnstiles', VALUE_FORMAT='AVRO', KEY='station_id');
 
 CREATE TABLE turnstile_summary 
-WITH (PARTITIONS=1) 
+WITH (VALUE_FORMAT='JSON') 
 AS SELECT station_id, SUM(num_entries) as count FROM turnstile GROUP BY station_id;
 """
 
@@ -40,6 +34,7 @@ AS SELECT station_id, SUM(num_entries) as count FROM turnstile GROUP BY station_
 def execute_statement():
     """Executes the KSQL statement against the KSQL API"""
     if topic_check.topic_exists("TURNSTILE_SUMMARY") is True:
+        logging.debug("ksql statement already executed. Exiting...")
         return
 
     logging.debug("executing ksql statement...")
@@ -57,6 +52,7 @@ def execute_statement():
 
     # Ensure that a 2XX status code was returned
     resp.raise_for_status()
+    logging.debug("ksql statement execution completed")
 
 
 if __name__ == "__main__":

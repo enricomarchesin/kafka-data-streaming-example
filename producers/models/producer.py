@@ -41,7 +41,7 @@ class Producer:
             self.create_topic()
             Producer.existing_topics.add(self.topic_name)
         else:
-            logger.info("Topic already exists: %s", self.topic_name)
+            logger.debug("Topic already exists: %s", self.topic_name)
 
         schema_registry = CachedSchemaRegistryClient({"url": SCHEMA_REGISTRY_URL})
         self.producer = AvroProducer({"bootstrap.servers": BROKER_URL}, schema_registry=schema_registry)

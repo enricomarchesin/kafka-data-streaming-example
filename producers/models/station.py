@@ -1,5 +1,6 @@
 """Methods pertaining to loading and configuring CTA "L" station data."""
 import json
+from enum import IntEnum
 import logging
 from pathlib import Path
 
@@ -15,6 +16,12 @@ logger = logging.getLogger(__name__)
 class Station(Producer):
     """Defines a single station"""
 
+    colors = {
+        0:"blue",
+        1: "green",
+        2: "red",
+    }
+
     key_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/arrival_key.json")
     value_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/arrival_value.json")
 
@@ -28,7 +35,7 @@ class Station(Producer):
             .replace("'", "")
         )
 
-        topic_name = f"org.chicago.cta.stations.{station_name}"
+        topic_name = f"org.chicago.cta.station.arrivals.{station_name}"
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
@@ -43,7 +50,6 @@ class Station(Producer):
         self.b_train = None
         self.turnstile = Turnstile(self)
 
-
     def run(self, train, direction, prev_station_id, prev_direction):
         """Simulates train arrivals at this station"""
         value = {
@@ -51,10 +57,11 @@ class Station(Producer):
             "train_id": train.train_id,
             "train_status": train.status.name,
             "direction": direction,
+            "line": Station.colors[self.color],
             "prev_station_id": prev_station_id,
             "prev_direction": prev_direction,
         }
-        logger.info("%s", json.dumps(value))
+        logger.debug("%s", json.dumps(value))
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},

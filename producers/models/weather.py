@@ -33,7 +33,7 @@ class Weather(Producer):
 
     def __init__(self, month):
         super().__init__(
-            f"org.chicago.cta.weather",
+            f"org.chicago.cta.weather.v2",
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
         )

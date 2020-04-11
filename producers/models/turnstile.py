@@ -26,7 +26,8 @@ class Turnstile(Producer):
         )
 
         super().__init__(
-            f"org.chicago.cta.turnstiles",
+            # f"org.chicago.cta.turnstiles.{station_name}",
+            "org.chicago.cta.turnstiles",
             key_schema=Turnstile.key_schema,
             value_schema=Turnstile.value_schema,
         )
@@ -40,7 +41,7 @@ class Turnstile(Producer):
             "station_id": self.station.station_id,
             "num_entries": num_entries,
         }
-        logger.info("%s", value)
+        logger.debug("%s", value)
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},

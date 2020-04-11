@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 KAFKA_CONNECT_URL = "http://localhost:8083/connectors"
-CONNECTOR_NAME = "stations"
+CONNECTOR_NAME = "stations5"
 
 def configure_connector():
     """Starts and configures the Kafka Connect connector"""
@@ -39,7 +39,7 @@ def configure_connector():
                "table.whitelist": "stations",
                "mode": "incrementing",
                "incrementing.column.name": "stop_id",
-               "topic.prefix": "org.chicago.cta.connect.",
+               "topic.prefix": "org.chicago.cta.connect.v5.",
                "poll.interval.ms": "30",
            }
        }),

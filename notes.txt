@@ -1,0 +1,2 @@
+docker-compose exec kafka0 kafka-topics --zookeeper zookeeper:2181 --topic org.chicago.cta.connect.stations.updates --delete
+docker-compose exec kafka0 kafka-console-consumer --bootstrap-server localhost:9092 --topic org.chicago.cta.weather.v2
