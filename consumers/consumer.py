@@ -35,20 +35,25 @@ class KafkaConsumer:
 
         self.broker_properties = {
             "bootstrap.servers": BROKER_URL,
-            "compression.type": "lz4",
-            'group.id': 'cta-group-02',
+            # "compression.type": "lz4",
+            'group.id': 'cta-group-05',
             'auto.offset.reset': 'earliest',
             "batch.num.messages": 100,
-            "linger.ms": 1000,
+            # "linger.ms": 1000,
         }
 
         if is_avro is True:
+            logger.info("AVRO consumer for topic: %s", self.topic_name_pattern)
             self.broker_properties["schema.registry.url"] = SCHEMA_REGISTRY_URL
             self.consumer = AvroConsumer(self.broker_properties)
         else:
+            logger.info("Standard consumer for topic: %s", self.topic_name_pattern)
             self.consumer = Consumer(self.broker_properties)
 
-        self.consumer.subscribe([self.topic_name_pattern], on_assign=self.on_assign)
+        self.consumer.subscribe(
+            [self.topic_name_pattern,],
+            on_assign=self.on_assign
+        )
 
     def on_assign(self, consumer, partitions):
         """Callback for when topic assignment takes place"""
@@ -69,14 +74,22 @@ class KafkaConsumer:
 
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
-        msg = self.consumer.poll(self.consume_timeout)
+        try:
+            msg = self.consumer.poll(self.consume_timeout)
+        except SerializerError as e:
+            logger.error("Message deserialization failed for %s: %s", msg, e)
+            return 0
+        except:
+            logger.error("ERROR!!!")
+            return 0
+
         if msg is None:
             return 0
         if msg.error():
             logger.error("Consumer error: %s", msg.error())
             return 0
 
-        logger.debug('Received message: %s', msg.value().decode('utf-8'))
+        logger.debug('Received message for topic %s: %s', msg.topic(), msg.value().decode('utf-8'))
         self.message_handler(msg)
         return 1
 

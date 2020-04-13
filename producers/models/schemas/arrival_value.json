@@ -5,10 +5,10 @@
   "fields": [
     { "name": "station_id", "type": "int" },
     { "name": "train_id", "type": "string" },
-    { "name": "direction", "type": { "name": "arrival_direction", "type": "enum", "symbols" : ["a", "b" ]}},
-    { "name": "line", "type": ["null", { "name": "arrival_line", "type": "enum", "symbols" : ["red", "blue", "green"] }] },
-    { "name": "train_status", "type": { "name": "arrival_train_status", "type": "enum", "symbols" : ["out_of_service", "in_service", "broken_down"] } },
+    { "name": "direction", "type": "string" },
+    { "name": "line", "type": ["null", "string"] },
+    { "name": "train_status", "type": "string" },
     { "name": "prev_station_id", "type": ["null", "int"] },
-    { "name": "prev_direction", "type": ["null", { "name": "arrival_prev_direction", "type": "enum", "symbols" : ["a", "b" ]}] }
+    { "name": "prev_direction", "type": ["null", "string"] }
   ]
 }

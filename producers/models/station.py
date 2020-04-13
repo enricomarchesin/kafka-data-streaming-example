@@ -16,12 +16,6 @@ logger = logging.getLogger(__name__)
 class Station(Producer):
     """Defines a single station"""
 
-    colors = {
-        0:"blue",
-        1: "green",
-        2: "red",
-    }
-
     key_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/arrival_key.json")
     value_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/arrival_value.json")
 
@@ -35,7 +29,7 @@ class Station(Producer):
             .replace("'", "")
         )
 
-        topic_name = f"org.chicago.cta.station.arrivals.{station_name}"
+        topic_name = f"org.chicago.cta.station.arrivals.all"
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
@@ -55,13 +49,13 @@ class Station(Producer):
         value = {
             "station_id": self.station_id,
             "train_id": train.train_id,
-            "train_status": train.status.name,
             "direction": direction,
-            "line": Station.colors[self.color],
+            "line": self.color.name,
+            "train_status": train.status.name,
             "prev_station_id": prev_station_id,
             "prev_direction": prev_direction,
         }
-        logger.debug("%s", json.dumps(value))
+        logger.debug("%s: %s", self.topic_name, json.dumps(value))
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},

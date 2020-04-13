@@ -25,15 +25,15 @@ class Line:
 
     def _handle_station(self, value):
         """Adds the station to this Line's data model"""
-        if value["line"] != self.color:
-            return
-        self.stations[value["station_id"]] = Station.from_message(value)
-        logger.debug("station %d: %s", value["station_id"], self.stations[value["station_id"]])
+        station_id = value["station_id"]
+        if value["line"] == self.color:
+            station = Station.from_message(value)
+            self.stations[station_id] = station
+            logger.debug("[%s line] added station %d: %s", value["line"], station_id, station.station_name)
 
-    def _handle_arrival(self, message):
+    def _handle_arrival(self, value):
         """Updates train locations"""
-        # logger.debug("arrival: %s", message)
-        value = message.value()
+        logger.debug("arrival: %s", value)
         prev_station_id = value.get("prev_station_id")
         prev_dir = value.get("prev_direction")
         if prev_dir is not None and prev_station_id is not None:
@@ -54,23 +54,25 @@ class Line:
 
     def process_message(self, message):
         """Given a kafka message, extract data"""
-        logger.debug("message topic: %s", message.topic())
-        if message.topic() == 'org.chicago.cta.stations.all.v5':
+        message_topic = message.topic()
+        message_value = message.value()
+
+        if message_topic == 'org.chicago.cta.stations.all.v5':
             try:
-                value = json.loads(message.value())
-                self._handle_station(value)
+                self._handle_station(json.loads(message_value))
             except Exception as e:
-                logger.fatal("bad station? %s, %s", value, e)
-        elif message.topic().startswith("org.chicago.cta.station.arrivals."):
-            self._handle_arrival(message)
-        elif message.topic() == 'TURNSTILE_SUMMARY':
-            logger.debug("turnstile message: %s", message.value())
-            json_data = json.loads(message.value())
+                logger.fatal("bad station? %s, %s", message_value, e)
+
+        elif message_topic.startswith("org.chicago.cta.station.arrivals."):
+            self._handle_arrival(message_value)
+
+        elif message_topic == 'TURNSTILE_SUMMARY':
+            json_data = json.loads(message_value)
             station_id = json_data.get("STATION_ID")
             station = self.stations.get(station_id)
-            if station is None:
-                logger.debug("unable to handle message due to missing station: %d", station_id)
-                return
-            station.process_message(json_data)
+            if station is not None:
+                # logger.debug("turnstile message: %s", message_value)
+                station.process_message(json_data)
+
         else:
-            logger.debug("unable to find handler for message from topic %s", message.topic)
+            logger.warning("unable to find handler for message from topic %s", message.topic)

@@ -30,7 +30,7 @@ class TransformedStation(faust.Record):
     line: str
 
 
-app = faust.App("stations-stream-3", broker="kafka://localhost:9092", store="memory://", topic_partitions=1)
+app = faust.App("stations-stream-4", broker="kafka://localhost:9092", store="memory://", topic_partitions=1)
 
 topic = app.topic("org.chicago.cta.connect.v5.stations", value_type=Station, key_type=None)
 out_topic = app.topic("org.chicago.cta.stations.all.v5", value_type=TransformedStation, internal=True)
@@ -60,7 +60,7 @@ async def station_cleaner(stations):
             order=station.order,
             line=line,
         )
-        logger.debug("t_station: %s", t_station)
+        logger.info("t_station: %s", t_station)
         # table[station.station_id] = t_station
         await out_topic.send(value=t_station)
 
