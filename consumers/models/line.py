@@ -67,11 +67,11 @@ class Line:
             self._handle_arrival(message_value)
 
         elif message_topic == 'TURNSTILE_SUMMARY':
+            logger.debug("turnstile message: %s", message_value)
             json_data = json.loads(message_value)
             station_id = json_data.get("STATION_ID")
             station = self.stations.get(station_id)
             if station is not None:
-                # logger.debug("turnstile message: %s", message_value)
                 station.process_message(json_data)
 
         else:

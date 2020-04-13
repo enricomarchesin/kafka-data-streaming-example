@@ -67,10 +67,13 @@ class KafkaConsumer:
     async def consume(self):
         """Asynchronously consumes data from kafka topic"""
         while True:
-            num_results = 1
-            while num_results > 0:
-                num_results = self._consume()
-            await gen.sleep(self.sleep_secs)
+            try:
+                num_results = 1
+                while num_results > 0:
+                    num_results = self._consume()
+                await gen.sleep(self.sleep_secs)
+            except Exception as e:
+                logger.error("ERROR!!! %s", e)
 
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
@@ -79,9 +82,6 @@ class KafkaConsumer:
         except SerializerError as e:
             logger.error("Message deserialization failed for %s: %s", msg, e)
             return 0
-        except:
-            logger.error("ERROR!!!")
-            return 0
 
         if msg is None:
             return 0
@@ -89,7 +89,6 @@ class KafkaConsumer:
             logger.error("Consumer error: %s", msg.error())
             return 0
 
-        logger.debug('Received message for topic %s: %s', msg.topic(), msg.value().decode('utf-8'))
         self.message_handler(msg)
         return 1
 

@@ -1,4 +1,5 @@
 """Creates a turnstile data producer"""
+import json
 import logging
 from pathlib import Path
 
@@ -41,7 +42,7 @@ class Turnstile(Producer):
             "station_id": self.station.station_id,
             "num_entries": num_entries,
         }
-        # logger.debug("%s", value)
+        logger.debug("%s: %s", self.topic_name, json.dumps(value))
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},

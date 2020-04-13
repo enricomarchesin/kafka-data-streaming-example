@@ -60,7 +60,7 @@ async def station_cleaner(stations):
             order=station.order,
             line=line,
         )
-        logger.info("t_station: %s", t_station)
+        logger.debug("t_station: %s", t_station)
         # table[station.station_id] = t_station
         await out_topic.send(value=t_station)
 
